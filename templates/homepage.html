@@ -1,0 +1,484 @@
+
+<!-- UI sources: Google Icon, Materializecss, Embed.ly -->
+
+
+
+
+<!DOCTYPE html>
+<html>
+
+    {% load staticfiles %}
+    <head>
+        <title>Pick!</title>
+        <link href="{% static 'homepage.css' %}" rel="stylesheet"> 
+
+        <!-- Compiled and minified CSS -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.3/css/materialize.min.css">
+
+        <!--Import Google Icon Font-->
+        <link href="http://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+        <style>
+        body {background-color:lightcyan;}
+        </style>
+
+    </head>
+    
+
+
+
+    {% if user.is_authenticated %}
+    <body>
+        <div class="navbar-fixed">
+          <nav>
+            <div class="nav-wrapper teal">
+              <a class="brand-logo center"> &nbsp Hey {{ username }}! Let's pick.</a>
+                <ul id="nav" class="left">
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/gridview/">ChartView</a></li>
+
+                </ul>
+                <ul id="nav" class="right">
+                    <li><a href="/logout/">Log out</a></li>
+                    <li><a href="/help/">Help</a></li>
+                </ul>
+
+            </div>
+          </nav>
+        </div>
+
+        <div class="row">
+
+
+        <div class="col s3">
+
+            <div class="row card-panel">
+
+                    <h5 style="text-align:left; margin-top:10px">What are you choosing for today?</h5>
+
+                    {% for goal in goal_data %}
+                      <form method="POST" action="/" >
+                      {% csrf_token %}
+                        <div class="row">
+                          <div class="col s12">
+                            <div class="card-panel teal">
+                              <span class="white-text"> <h4>{{ goal }}</h4></span>
+                            </div>
+                          </div>
+                        </div>
+                      </form>
+                    {% endfor %}
+
+                       <div class="form-area">
+                          <form method="POST" action="/" >
+                              {% csrf_token %}
+                              <div class="input-field">
+                                  <input placeholder="e.g. birthday gift, restaurant" name="goal" type="text" id="question-field"/>
+                              </div>
+                              <button class="btn waves-effect waves-light" style="float:right;" type="submit"> Update goal
+                              </button>
+                          </form>
+                      </div>
+            </div>
+
+
+            <div class="row card-panel">
+
+                    <h5 style="text-align:left; margin-top:10px">What are some criteria for you to consider?</h5>
+
+                    {% for criterion in criteria_data %}
+                    <div class="chip">
+                      <form method="POST" action="/" >
+                      {% csrf_token %}
+                          {{ criterion.name }} {{criterion.weight}}
+                          <input name="criterionDelete" type="hidden" value= {{ criterion.name }} >
+                           <button class="deletebutton ui-button ui-widget" type="submit"> x </button>
+                          <!--with delete functions!!!-->
+                      </form>
+                    </div> 
+                    {% endfor %}
+
+                       <div class="form-area">
+                          <form method="POST" action="/" >
+                              {% csrf_token %}
+                              <div class="input-field">
+                                  <input placeholder="e.g. price, location" name="newCriterion" type="text" id="question-field"/>
+                                  <input placeholder="How important is it? (write 1 to 5)" name="newCriterionWeight" type="text" id="question-field"/>
+                              </div>
+                              <button class="btn waves-effect waves-light" style="float:right;" type="submit">Add criterion
+                              </button>
+                          </form>
+                      </div>
+            </div>
+
+            <div class="row card-panel">
+              <h6 >
+                {% if allLoggedInUsers %}
+                Who is choosing right now:
+                    {% for user in allLoggedInUsers %}
+                     <div class="chip" > {{ user }} </div>
+                    {% endfor %}
+                {% endif %}
+              </h6>
+            </div>
+
+            <div class="row">
+              <form method="POST" action="/" >
+                  {% csrf_token %}
+                  <input name="reset" type="hidden">
+                  <button class="btn tooltipped waves-effect waves-light teal lighten-3" data-position="right" data-delay="20" data-tooltip="Be careful! This will delete all the ratings and options" style="float:right;" type="submit" > Reset </button>
+              </form>
+            </div>
+
+        </div>
+
+
+            <div class="col s9">
+
+                <div class="row card-panel">
+                  <form method="POST" action="/" >
+                      {% csrf_token %}
+                        <input placeholder="Link to something you'd like to consider (It could be a page on Amazon, Yelp, Tripadvisor, Macy's, Etcy...)" name="newOptionContent" type="text" >
+                        <button class="btn waves-effect waves-light" style="float:right;" type="submit"> add new link
+                        </button>
+                  </form>
+                </div>
+
+                <ul class="collapsible popout" data-collapsible="expandable">
+                {% for option in options_data %}
+                    <li>
+                        <div class="collapsible-header active">
+                          <i class="material-icons">card_giftcard</i> 
+                          {{ option.name }}    
+                          <div class="chip"> Average rating: {{ option.generalAverage }} {{ option.ratedBy }} </div>
+                        </div>
+
+                        <div class="collapsible-body">
+
+                            <div class="row card-panel">
+
+                                <!--items-->
+                                  <div class = "col s6">
+                                    <div class="card indigo lighten-5">
+                                      <div class="card-content black-text">
+                                          <div class="entry-question">
+                                              <a href={{ option.optionContent }}> {{ option.optionContent }} </a> 
+                                          </div>
+                                      </div>
+                                    </div>
+                                  </div>
+
+
+                              <!--ratings-->
+                                <div class ="col s6">
+
+                                        <div class="row">
+
+                                              <div class = "col s6">
+                                                Pros:
+                                                {% for pro in option.pros %}
+                                                   <div class="chip">
+                                              
+                                                      <form method="POST" action="/" >
+                                                        {% csrf_token %}
+                                                        {{ pro }}
+                                                          <input name="proDelete" type="hidden" value= {{ pro }} >
+                                                          <input name="proOption" type="hidden" value= {{ option.optionContent }} >
+                                                          <button class="deletebutton ui-button ui-widget" type="submit"> x </button>
+                                                          <!--with delete functions!!!-->
+                                                      </form>
+                                                   </div>
+                                                {% endfor %}
+
+                                                        <form method="POST" action="/" >
+                                                            {% csrf_token %}
+                                                            <input placeholder="add new pro" name="newPro" type="text" >
+                                                            <input name= "proOption" value = {{ option.optionContent }} type="hidden">
+                                                            <button class="btn-floating  waves-effect waves-light teal " type="submit">
+                                                            <i class="material-icons">add</i>
+                                                            </button>
+                                                     </form>
+                                              </div>
+
+                                              <div class = "col s6">
+                                                Cons:
+                                                {% for con in option.cons %}
+                                                     <div class="chip">
+                                                     
+                                                      <form method="POST" action="/" >
+                                                        {% csrf_token %}
+                                                            {{ con }}
+                                                            <input name="conDelete" type="hidden" value= {{ con }}>
+                                                            <input name="conOption" type="hidden" value= {{ option.optionContent }} >
+                                                             <button class="deletebutton ui-button ui-widget" type="submit"> x </button>
+                                                            <!--with delete functions!!!-->
+                                                        </form>
+                                                     </div>
+                                                {% endfor %}
+
+                                                        <form method="POST" action="/" >
+                                                            {% csrf_token %}
+                                                            <input placeholder="add new con" name="newCon" type="text" >
+                                                            <input name= "conOption" value = {{ option.optionContent }} type="hidden">
+                                                            <button class="btn-floating  waves-effect waves-light teal " type="submit">
+                                                            <i class="material-icons">add</i>
+                                                            </button>                                                        </form>
+
+                                              </div>
+                                        </div>
+
+                                        <div class="row">
+                                          <ul class="collapsible" data-collapsible="accordion">
+
+                                            {% for criterion in option.criteria %}
+
+                                            <li>
+                                              <div class="collapsible-header"><i class="material-icons">label_outline</i>
+                                              Rate for this item's "{{ criterion.name }}"
+                                                  <div class="chip">
+                                                  Average: {{criterion.averageRating}} 
+                                                  </div>
+                                              </div>
+
+                                              <div class="collapsible-body">
+                                                <div class = "row">
+                                                  <div class = "col s12">
+                                                    <form method="POST" action="/" >
+                                                        {% csrf_token %}
+                                                        <input placeholder="Rate from 1 to 5" name="newRate" type="text" >
+                                                        <input name="rateCriterion" value = {{ criterion.name }} type="hidden">
+                                                        <input name="rateOption" value = {{ option.optionContent }} type="hidden">
+                                                        <button class="btn" type="submit"> submit </button>
+                                                    </form>
+
+                                                  </div>
+                                                </div>
+                                              </div>
+                                            </li>
+
+                                          {% endfor%}
+                                          </ul>
+                                        </div>
+                                          
+
+                                        <div class = "row">
+                                          <ul class="collapsible" data-collapsible="accordion">
+                                              <li>
+                                                  <div class="collapsible-header active">
+                                                    <i class="material-icons" style="center">query_builder</i> 
+                                                    Rating History
+                                                  </div>
+                                                  <div class="collapsible-body">
+                                                    <div class="row">
+                                                    <div class="col s12">
+                                                        <br>
+                                                        {% for criterion in option.criteria %}
+                                                            {% for rating in criterion.rates %}
+                                                              <div class="chip">
+                                                                {{ rating.number }} by {{rating.ratername}} for "{{criterion.name}}"
+                                                              </div>
+                                                            {% endfor %}
+                                                        {% endfor %}
+                                                    </div>
+                                                    </div>
+                                                  </div>
+                                                
+                                              </li>
+                                          </ul>
+
+                                        </div>
+
+
+                                            <!--final decision button! -->
+                                        <div class="row">
+
+                                              <form method="POST" action="/" >
+                                                  {% csrf_token %}
+                                                    <input name="result" value={{option.optionContent}} type="hidden">
+                                                    <button class="btn tooltipped waves-effect waves-light" style="float:left;" data-position="bottom" data-delay="0" data-tooltip="Final vote - click on it if y'all have decided on it (this option will be your final choice after everyone currently logged-in clicks on this button)" type="submit"> This is it! </button>
+                                              </form>
+
+                                              <form method="POST" action="/" >
+                                                  {% csrf_token %}
+                                                    <input name="resetResult" value={{option.optionContent}} type="hidden">
+                                                    <button class="btn tooltipped waves-effect waves-light grey lighten-1" style="float:right;" data-position="left" data-delay="0" data-tooltip="Clear all the This-is-it votes on this option" type="submit"> Clear </button>
+                                              </form>
+                                        </div>
+                                        <div class = "row">
+                                            <div class="push-s1">
+                                            {% for finalVoter in option.finalVotes %}
+                                                &nbsp
+                                                <div class="chip">
+                                                    {{ finalVoter }} wants it!
+                                                </div>
+                                            {% endfor %}
+                                            </div>
+                                        </div>
+
+                                            <form method="POST" action="/" >
+                                                  {% csrf_token %}
+                                                  <input type='hidden' name='deleteOption' value = {{option.optionContent}} >
+                                                  <button class="btn-floating tooltipped waves-effect waves-light grey " data-position="left" data-delay="0" data-tooltip="Are you sure you and your friends no longer want to consider this option?"  type="submit">
+                                                    <i class="material-icons">delete</i>
+                                                  </button>
+                                            </form>
+
+
+
+
+
+                            </div>
+
+                          </div>
+                                              
+                      </div>
+
+                    </li>
+                {% endfor %}
+                </ul>
+            </div>
+
+
+
+
+
+
+
+        </div>
+
+
+    </body>
+
+    {% else %}
+    Login first!
+        <a href="/login/?next={{ request.path }}"> Login </a>
+    {% endif %}
+
+</html>
+
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js" type="text/javascript"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js" type="text/javascript"></script>
+<script>var $j = jQuery.noConflict(true);</script>
+
+<script src="http://cdn.embed.ly/jquery.embedly-3.1.1.min.js" type="text/javascript"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.3/js/materialize.min.js"></script>
+
+
+<script>
+
+$(document).ready(function() {
+    $.embedly.defaults.key = '96cc6fb6ff8546c097d665078108b6af';
+    $.embedly.defaults.query = {maxheight:300, maxwidth:300};
+
+    // Replace all valid links
+    $('a').embedly();
+
+
+    $j('.collapsible').collapsible({
+      accordion : false // A setting that changes the collapsible behavior to expandable instead of the default accordion style
+    });
+
+    
+    $('.tooltipped').tooltip({delay: 0});
+
+    $( "deletebutton" ).button();
+
+    $('.dropdown-button').dropdown({
+      inDuration: 300,
+      outDuration: 225,
+      constrain_width: false, // Does not change width of dropdown to that of the activator
+      hover: true, // Activate on hover
+      gutter: 0, // Spacing from edge
+      belowOrigin: false, // Displays dropdown below the button
+      alignment: 'left' // Displays dropdown with edge aligned to the left of button
+    }
+
+  );
+
+});
+
+
+
+
+
+var xmlhttp = new XMLHttpRequest();
+var url = "http://www.amazon.com/gp/product/B00JP12300/ref=s9_simh_gw_p23_d0_i2?pf_rd_m=ATVPDKIKX0DER&pf_rd_s=desktop-2&pf_rd_r=1D804GMCBPTNF85NWKYE&pf_rd_t=36701&pf_rd_p=2091268722&pf_rd_i=desktop";
+
+xmlhttp.onreadystatechange=function() {
+    if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+        myFunction(xmlhttp.responseText);
+    }
+}
+xmlhttp.open("GET", url, true);
+xmlhttp.send();
+
+function myFunction(response) {
+    var arr = $(url).data('embedly');
+    var out = "<h3>";
+    out = arr["title"] + "hiuewgfT EIFGU780  " + "</h3>";
+    document.getElementById("test").innerHTML = out;
+}
+
+</script>
+
+
+
+
+                                      <!--
+                                      <div class = "col s3">
+                                        <div class="card deep-orange lighten-3">
+                                          <div class="card-content white-text">
+
+                                              Rate!
+
+                                              <form method="POST" action="/" >
+                                                {% csrf_token %}
+                                                <input type='hidden' name='rate' value = "5" >
+                                                <input type='hidden' name='post' value = {{q.content}} >
+                                                <button class="btn-floating red accent-2" type="submit" >5</button>
+                                              </form>
+
+                                              <form method="POST" action="/" >
+                                                {% csrf_token %}
+                                                <input type='hidden' name='rate' value = "4" >
+                                                <input type='hidden' name='post' value = {{q.content}} >
+                                                <button class="btn-floating red accent-2" style="bottom=20px" type="submit" >4</button>
+                                              </form>
+
+                                              <form method="POST" action="/" >
+                                                {% csrf_token %}
+                                                <input type='hidden' name='rate' value = "3" >
+                                                <input type='hidden' name='post' value = {{q.content}} >
+                                                <button class="btn-floating red accent-2" type="submit" >3</button>
+                                              </form>
+
+                                              <form method="POST" action="/" >
+                                                {% csrf_token %}
+                                                <input type='hidden' name='rate' value = "2" >
+                                                <input type='hidden' name='post' value = {{q.content}} >
+                                                <button class="btn-floating red accent-2" type="submit" >2</button>
+                                              </form>
+
+                                              <form method="POST" action="/" >
+                                                {% csrf_token %}
+                                                <input type='hidden' name='rate' value = "1" >
+                                                <input type='hidden' name='post' value = {{q.content}} >
+                                                <button class="btn-floating red accent-2" type="submit" >1</button>
+                                              </form>
+
+                                              <form method="POST" action="/" >
+                                                  {% csrf_token %}
+                                                  <input type='hidden' name='pdelete' value = {{q.content}} >
+
+                                                  <button class="btn-floating waves-effect waves-light grey" type="submit">
+                                                    <i class="material-icons">delete</i>
+                                                  </button>
+                                              </form>
+                                          </div>
+                                        </div>
+                                      </div>
+                                      -->
+
+
