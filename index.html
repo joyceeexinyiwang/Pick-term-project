@@ -67,6 +67,10 @@ ul li {
 #propic {
     margin-left: 50px;
     }
+
+#github_link {
+    text-decoration: underline;
+}
 </style>
 </head>
     
@@ -106,41 +110,18 @@ ul li {
     
     <div id="rightcolumn"> 
         <div class="about">
-            <p> I am Joyce Wang. Born and raised in Beijing. Currently an engineering student at Carnegie Mellon University. </p>
-            <p> I love films, conceptual art, and everything tech-related. </p>
-            <p> In the past I have enjoyed playing around with software engineering, web/mobile app dev, random art experimentations, etc.
-                There are infinite other things I want to learn and explore. </p>
-            <p> We will see where it goes. </p>
-        </div>
-        <div class="propic">
-            <img src="propic.jpg" width="450" height="300">
-        </div>
-        <div>
-            <img src="cfa303.jpg" width="300" height="300">
+            <p> This video is about Pick!, a Django web app that allows a group of people to rate/compare/choose things together. We can use it for shopping, picking a club apparel, choosing a restaurant, and so on. </p>
+            <p> It is a term project for a intro-level programming class that I took at Carnegie Mellon. I was pretty lucky so I got to present it in front of a 400-people class. I am actually a TA for that class now. </p>
         </div>
         <div>
             <div class='embed-container'>
                 <iframe src='https://player.vimeo.com/video/179986009' frameborder='0' webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>
             </div>        
+        </div>  
+        <div class="github_link">
+            <a href="https://github.com/joyceeexinyiwang/Pick-term-project/"> github </a>
         </div>
-        <div>
-            <div class='embed-container'>
-                <iframe src='https://player.vimeo.com/video/171522302' frameborder='0' webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>
-            </div>        
-        </div>        
     </div>
 
 </body>
 </html>
-
-<script src="http://cdn.embed.ly/jquery.embedly-3.1.1.min.js" type="text/javascript"></script>
-<script>
-$(document).ready(function() {
-    $.embedly.defaults.key = '96cc6fb6ff8546c097d665078108b6af';
-    $.embedly.defaults.query = {maxheight:300, maxwidth:300};
-
-    // Replace all valid links
-    $('video').embedly();
-
-});
-</script>
